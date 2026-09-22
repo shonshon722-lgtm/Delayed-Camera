@@ -687,6 +687,8 @@
             livePipCanvas.width = width;
             livePipCanvas.height = height;
 
+            syncCanvasOverlay();
+
             cameraLoading.classList.add('hidden');
             await populateCameraList();
         } catch (err) {
@@ -880,13 +882,27 @@
         delayedCtx.restore();
     }
 
+    function syncCanvasOverlay() {
+        if (!delayedCanvas || !drawingCanvas) return;
+        const rect = delayedCanvas.getBoundingClientRect();
+        const wrapper = document.getElementById('canvasWrapper');
+        if (!wrapper) return;
+        const wrapperRect = wrapper.getBoundingClientRect();
+
+        drawingCanvas.style.position = 'absolute';
+        drawingCanvas.style.left = `${rect.left - wrapperRect.left}px`;
+        drawingCanvas.style.top = `${rect.top - wrapperRect.top}px`;
+        drawingCanvas.style.width = `${rect.width}px`;
+        drawingCanvas.style.height = `${rect.height}px`;
+    }
+
     function setupDrawingHandlers() {
         const getCanvasCoords = (e) => {
-            const rect = delayedCanvas.getBoundingClientRect();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            const scaleX = delayedCanvas.width / rect.width;
-            const scaleY = delayedCanvas.height / rect.height;
+            const rect = drawingCanvas.getBoundingClientRect();
+            const clientX = e.touches && e.touches.length > 0 ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches && e.touches.length > 0 ? e.touches[0].clientY : e.clientY;
+            const scaleX = drawingCanvas.width / rect.width;
+            const scaleY = drawingCanvas.height / rect.height;
 
             return {
                 x: (clientX - rect.left) * scaleX,
@@ -904,14 +920,14 @@
 
         const draw = (e) => {
             if (!isDrawing || !state.drawMode) return;
-            e.preventDefault();
+            if (e.cancelable) e.preventDefault();
             const coords = getCanvasCoords(e);
 
             drawingCtx.beginPath();
             drawingCtx.moveTo(lastX, lastY);
             drawingCtx.lineTo(coords.x, coords.y);
             drawingCtx.strokeStyle = state.drawColor;
-            drawingCtx.lineWidth = 4;
+            drawingCtx.lineWidth = 5;
             drawingCtx.lineCap = 'round';
             drawingCtx.lineJoin = 'round';
             drawingCtx.stroke();
@@ -924,14 +940,17 @@
             isDrawing = false;
         };
 
-        delayedCanvas.addEventListener('mousedown', startDrawing);
-        delayedCanvas.addEventListener('mousemove', draw);
-        delayedCanvas.addEventListener('mouseup', stopDrawing);
-        delayedCanvas.addEventListener('mouseleave', stopDrawing);
+        drawingCanvas.addEventListener('mousedown', startDrawing);
+        drawingCanvas.addEventListener('mousemove', draw);
+        drawingCanvas.addEventListener('mouseup', stopDrawing);
+        drawingCanvas.addEventListener('mouseleave', stopDrawing);
 
-        delayedCanvas.addEventListener('touchstart', startDrawing);
-        delayedCanvas.addEventListener('touchmove', draw, { passive: false });
-        delayedCanvas.addEventListener('touchend', stopDrawing);
+        drawingCanvas.addEventListener('touchstart', (e) => {
+            if (state.drawMode && e.cancelable) e.preventDefault();
+            startDrawing(e);
+        }, { passive: false });
+        drawingCanvas.addEventListener('touchmove', draw, { passive: false });
+        drawingCanvas.addEventListener('touchend', stopDrawing);
     }
 
     function updateDelayValue(val) {
@@ -1028,6 +1047,7 @@
         drawBtn.classList.toggle('border-sky-400', state.drawMode);
 
         if (state.drawMode) {
+            syncCanvasOverlay();
             drawingCanvas.classList.remove('pointer-events-none');
             drawingCanvas.classList.add('cursor-crosshair');
             drawingToolbar.classList.remove('hidden');
@@ -1131,7 +1151,7 @@
         if (checkMobileSenderMode()) return;
 
         setupDrawingHandlers();
-        // Do not call initRemoteReceiver() on page load to prevent automatic WebSocket requests in restricted environments
+        window.addEventListener('resize', syncCanvasOverlay);
         await initCamera();
         requestAnimationFrame(processFrame);
     };
