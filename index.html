@@ -239,6 +239,13 @@
                         <button id="modeDelayedOnly" title="遅延のみ" class="px-2 py-1 text-xs rounded font-medium bg-sky-500 text-slate-950 transition">遅延のみ</button>
                         <button id="modeSplit" title="左右分割" class="px-2 py-1 text-xs rounded font-medium text-slate-300 hover:text-white transition">左右分割</button>
                         <button id="modePip" title="ライブ小画面" class="px-2 py-1 text-xs rounded font-medium text-slate-300 hover:text-white transition">PiP表示</button>
+                        <button id="modeVr" title="VRゴーグル用（左右同画面）" class="px-2 py-1 text-xs rounded font-medium text-slate-300 hover:text-white transition flex items-center space-x-1">
+                            <svg class="w-3.5 h-3.5 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                            <span>VR</span>
+                        </button>
                     </div>
 
                     <!-- Mirror Toggle -->
@@ -442,7 +449,7 @@
         playbackSpeed: 1.0,
         isMirrored: false,
         gridMode: 'none', // 'none' | 'grid3x3' | 'cross'
-        layoutMode: 'delayed', // 'delayed' | 'split' | 'pip'
+        layoutMode: 'delayed', // 'delayed' | 'split' | 'pip' | 'vr'
         drawMode: false,
         drawColor: '#ef4444',
         selectedCameraId: '',
@@ -497,7 +504,7 @@
     const modeDelayedOnly = document.getElementById('modeDelayedOnly');
     const modeSplit = document.getElementById('modeSplit');
     const modePip = document.getElementById('modePip');
-
+    const modeVr = document.getElementById('modeVr');
     // Remote Camera Elements
     const remoteCamBtn = document.getElementById('remoteCamBtn');
     const remoteCamModal = document.getElementById('remoteCamModal');
@@ -832,6 +839,42 @@
             delayedCtx.fillStyle = '#38bdf8';
             delayedCtx.fillText(`${state.delaySeconds.toFixed(1)}秒遅延`, halfW + 16, 30);
 
+        } else if (state.layoutMode === 'vr') {
+            // VR SIDE-BY-SIDE MODE: Same delayed frame duplicated for Left & Right eyes
+            const halfW = width / 2;
+
+            // Left Eye
+            delayedCtx.save();
+            if (state.isMirrored) {
+                delayedCtx.translate(halfW, 0);
+                delayedCtx.scale(-1, 1);
+                delayedCtx.drawImage(selectedFrame.bitmap, 0, 0, width, height, 0, 0, halfW, height);
+            } else {
+                delayedCtx.drawImage(selectedFrame.bitmap, 0, 0, width, height, 0, 0, halfW, height);
+            }
+            delayedCtx.restore();
+
+            // Center Divider for VR Googles
+            delayedCtx.fillStyle = '#0f172a';
+            delayedCtx.fillRect(halfW - 4, 0, 8, height);
+
+            // Right Eye
+            delayedCtx.save();
+            if (state.isMirrored) {
+                delayedCtx.translate(width + halfW, 0);
+                delayedCtx.scale(-1, 1);
+                delayedCtx.drawImage(selectedFrame.bitmap, 0, 0, width, height, 0, 0, halfW, height);
+            } else {
+                delayedCtx.drawImage(selectedFrame.bitmap, 0, 0, width, height, halfW, 0, halfW, height);
+            }
+            delayedCtx.restore();
+
+            // Render overlay grids on each eye individually in VR mode
+            if (state.gridMode !== 'none') {
+                drawGridOverlayEye(0, 0, halfW, height);
+                drawGridOverlayEye(halfW, 0, halfW, height);
+            }
+
         } else {
             // FULL DELAYED MODE
             if (state.isMirrored) {
@@ -843,11 +886,13 @@
 
         delayedCtx.restore();
 
-        // Draw Grid Overlays
-        drawGridOverlay(width, height);
+        // Draw Grid Overlays (For Non-VR modes)
+        if (state.layoutMode !== 'vr') {
+            drawGridOverlay(width, height);
+        }
     }
 
-    function drawGridOverlay(w, h) {
+    function drawGridOverlayEye(offsetX, offsetY, w, h) {
         if (state.gridMode === 'none') return;
 
         delayedCtx.save();
@@ -860,22 +905,22 @@
             const thirdH = h / 3;
 
             delayedCtx.beginPath();
-            delayedCtx.moveTo(thirdW, 0); delayedCtx.lineTo(thirdW, h);
-            delayedCtx.moveTo(thirdW * 2, 0); delayedCtx.lineTo(thirdW * 2, h);
-            delayedCtx.moveTo(0, thirdH); delayedCtx.lineTo(w, thirdH);
-            delayedCtx.moveTo(0, thirdH * 2); delayedCtx.lineTo(w, thirdH * 2);
+            delayedCtx.moveTo(offsetX + thirdW, offsetY); delayedCtx.lineTo(offsetX + thirdW, offsetY + h);
+            delayedCtx.moveTo(offsetX + thirdW * 2, offsetY); delayedCtx.lineTo(offsetX + thirdW * 2, offsetY + h);
+            delayedCtx.moveTo(offsetX, offsetY + thirdH); delayedCtx.lineTo(offsetX + w, offsetY + thirdH);
+            delayedCtx.moveTo(offsetX, offsetY + thirdH * 2); delayedCtx.lineTo(offsetX + w, offsetY + thirdH * 2);
             delayedCtx.stroke();
         } else if (state.gridMode === 'cross') {
-            const centerX = w / 2;
-            const centerY = h / 2;
+            const centerX = offsetX + w / 2;
+            const centerY = offsetY + h / 2;
 
             delayedCtx.beginPath();
-            delayedCtx.moveTo(centerX, 0); delayedCtx.lineTo(centerX, h);
-            delayedCtx.moveTo(0, centerY); delayedCtx.lineTo(w, centerY);
+            delayedCtx.moveTo(centerX, offsetY); delayedCtx.lineTo(centerX, offsetY + h);
+            delayedCtx.moveTo(offsetX, centerY); delayedCtx.lineTo(offsetX + w, centerY);
             delayedCtx.stroke();
 
             delayedCtx.beginPath();
-            delayedCtx.arc(centerX, centerY, 40, 0, Math.PI * 2);
+            delayedCtx.arc(centerX, centerY, 30, 0, Math.PI * 2);
             delayedCtx.stroke();
         }
 
@@ -1080,6 +1125,7 @@
         modeDelayedOnly.className = mode === 'delayed' ? 'px-2 py-1 text-xs rounded font-medium bg-sky-500 text-slate-950 transition' : 'px-2 py-1 text-xs rounded font-medium text-slate-300 hover:text-white transition';
         modeSplit.className = mode === 'split' ? 'px-2 py-1 text-xs rounded font-medium bg-sky-500 text-slate-950 transition' : 'px-2 py-1 text-xs rounded font-medium text-slate-300 hover:text-white transition';
         modePip.className = mode === 'pip' ? 'px-2 py-1 text-xs rounded font-medium bg-sky-500 text-slate-950 transition' : 'px-2 py-1 text-xs rounded font-medium text-slate-300 hover:text-white transition';
+        modeVr.className = mode === 'vr' ? 'px-2 py-1 text-xs rounded font-medium bg-sky-500 text-slate-950 transition flex items-center space-x-1' : 'px-2 py-1 text-xs rounded font-medium text-slate-300 hover:text-white transition flex items-center space-x-1';
 
         if (mode === 'pip') {
             pipContainer.classList.remove('hidden');
@@ -1092,8 +1138,7 @@
     modeDelayedOnly.addEventListener('click', () => updateLayoutUI('delayed'));
     modeSplit.addEventListener('click', () => updateLayoutUI('split'));
     modePip.addEventListener('click', () => updateLayoutUI('pip'));
-
-    captureBtn.addEventListener('click', () => {
+    modeVr.addEventListener('click', () => updateLayoutUI('vr'));
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = delayedCanvas.width;
         tempCanvas.height = delayedCanvas.height;
