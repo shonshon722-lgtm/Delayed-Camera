@@ -425,7 +425,7 @@
     const delayBadgeText = document.getElementById('delayBadgeText');
     const bufferProgressBar = document.getElementById('bufferProgressBar');
     const bufferTimeText = document.getElementById('bufferTimeText');
-    const cameraLoading = document.getElementById('cameraLoading');
+
     const loadingText = document.getElementById('loadingText');
     const playPauseBtn = document.getElementById('playPauseBtn');
     const playIcon = document.getElementById('playIcon');
@@ -940,6 +940,7 @@
     function updateDelayValue(val) {
         const num = parseFloat(val);
         state.delaySeconds = num;
+        state.currentFrameIndex = -1; // 強制的に最新の指定遅延位置を再計算させる
         delaySlider.value = num;
         delayValueBadge.textContent = `${num.toFixed(1)}s`;
         headerDelayDisplay.textContent = num.toFixed(1);
@@ -953,6 +954,8 @@
                 btn.className = 'preset-btn px-2.5 py-1 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium transition active:scale-95';
             }
         });
+        
+        renderDelayedFrame();
     }
 
     delaySlider.addEventListener('input', (e) => {
@@ -1140,6 +1143,7 @@
     window.onload = async () => {
         if (checkMobileSenderMode()) return;
 
+        updateDelayValue(3.0); // 初期起動時に確実に3.0秒に設定
         setupDrawingHandlers();
         window.addEventListener('resize', syncCanvasOverlay);
         await initCamera();
