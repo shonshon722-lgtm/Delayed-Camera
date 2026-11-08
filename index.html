@@ -40,6 +40,7 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            background-color: #000;
         }
         input[type=range] {
             -webkit-appearance: none;
@@ -111,12 +112,12 @@
     </header>
 
     <!-- Main Display Viewport -->
-    <main class="flex-1 relative bg-black flex items-center justify-center overflow-hidden min-h-0">
+    <main class="flex-1 relative bg-black flex items-center justify-center overflow-hidden min-h-0 w-full h-full">
         <video id="webcamVideo" class="hidden" autoplay playsinline muted></video>
 
-        <div id="canvasWrapper" class="canvas-container">
-            <canvas id="delayedCanvas" class="max-w-full max-h-full object-contain shadow-2xl transition-transform duration-200"></canvas>
-            <canvas id="drawingCanvas" class="absolute inset-0 max-w-full max-h-full object-contain pointer-events-none z-10"></canvas>
+        <div id="canvasWrapper" class="canvas-container w-full h-full">
+            <canvas id="delayedCanvas" class="w-full h-full object-contain shadow-2xl transition-transform duration-200"></canvas>
+            <canvas id="drawingCanvas" class="absolute inset-0 w-full h-full object-contain pointer-events-none z-10"></canvas>
 
             <div id="pipContainer" class="hidden absolute top-4 right-4 border-2 border-slate-600 rounded-lg overflow-hidden shadow-2xl z-15 w-36 sm:w-48 aspect-video bg-black/80 backdrop-blur">
                 <canvas id="livePipCanvas" class="w-full h-full object-cover"></canvas>
@@ -666,10 +667,11 @@
                 });
             }).catch(e => console.error(e));
 
-            const maxRetentionMs = state.maxDelaySeconds * 1000 + 1000;
+            // スマホのメモリ不足によるブラウザクラッシュを防止するため、指定秒数＋安全マージン（2秒）以上のフレームを速やかに破棄・メモリ解放(close)
+            const maxRetentionMs = state.delaySeconds * 1000 + 2000;
             while (frameBuffer.length > 0 && (now - frameBuffer[0].timestamp) > maxRetentionMs) {
                 const oldFrame = frameBuffer.shift();
-                if (oldFrame.bitmap && typeof oldFrame.bitmap.close === 'function') {
+                if (oldFrame && oldFrame.bitmap) {
                     oldFrame.bitmap.close();
                 }
             }
@@ -1116,7 +1118,12 @@
             state.targetWidth = resW;
             state.targetHeight = resH;
             
-            frameBuffer.forEach(f => f.bitmap && f.bitmap.close && f.bitmap.close());
+            // 旧フレームのメモリを完全に解放してクラッシュを防ぐ
+            frameBuffer.forEach(f => {
+                if (f && f.bitmap && typeof f.bitmap.close === 'function') {
+                    f.bitmap.close();
+                }
+            });
             frameBuffer = [];
             
             await initCamera();
