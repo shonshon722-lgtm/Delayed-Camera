@@ -18,7 +18,6 @@
             user-select: none;
             -webkit-user-select: none;
         }
-        /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -42,10 +41,6 @@
             justify-content: center;
             overflow: hidden;
         }
-        .mirror {
-            transform: scaleX(-1);
-        }
-        /* Custom range slider styling */
         input[type=range] {
             -webkit-appearance: none;
             background: transparent;
@@ -93,7 +88,6 @@
         </div>
 
         <div class="flex items-center space-x-2">
-            <!-- Delayed seconds display pill -->
             <div class="flex items-center bg-slate-800/80 px-3 py-1 rounded-full border border-slate-700/80 text-xs">
                 <span class="text-slate-400 mr-1.5">遅延時間:</span>
                 <span id="headerDelayDisplay" class="font-bold text-sky-400 text-sm">3.0</span>
@@ -107,7 +101,6 @@
                 <span class="hidden md:inline">📱 スマホ連携</span>
             </button>
 
-            <!-- Settings toggle button -->
             <button id="toggleSettingsBtn" title="設定" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
@@ -119,29 +112,22 @@
 
     <!-- Main Display Viewport -->
     <main class="flex-1 relative bg-black flex items-center justify-center overflow-hidden min-h-0">
-        <!-- Hidden source video element -->
         <video id="webcamVideo" class="hidden" autoplay playsinline muted></video>
 
-        <!-- Main Display Canvas (Delayed video + grid + drawings) -->
         <div id="canvasWrapper" class="canvas-container">
             <canvas id="delayedCanvas" class="max-w-full max-h-full object-contain shadow-2xl transition-transform duration-200"></canvas>
-            
-            <!-- Drawing canvas overlay -->
             <canvas id="drawingCanvas" class="absolute inset-0 max-w-full max-h-full object-contain pointer-events-none z-10"></canvas>
 
-            <!-- Live PIP Preview Canvas (if active) -->
             <div id="pipContainer" class="hidden absolute top-4 right-4 border-2 border-slate-600 rounded-lg overflow-hidden shadow-2xl z-15 w-36 sm:w-48 aspect-video bg-black/80 backdrop-blur">
                 <canvas id="livePipCanvas" class="w-full h-full object-cover"></canvas>
                 <div class="absolute bottom-1 left-1 bg-red-600/90 text-white text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">LIVE</div>
             </div>
 
-            <!-- Delay Overlay Label -->
             <div id="delayBadge" class="absolute top-4 left-4 bg-slate-900/80 backdrop-blur text-sky-400 border border-sky-500/30 text-xs px-2.5 py-1 rounded-full font-mono flex items-center space-x-1 z-15 shadow-md">
                 <span class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
                 <span id="delayBadgeText">3.0 秒遅延再生中</span>
             </div>
 
-            <!-- Buffer status bar (top center) -->
             <div id="bufferBarContainer" class="absolute top-4 left-1/2 -translate-x-1/2 bg-slate-900/80 backdrop-blur border border-slate-800 rounded-full px-3 py-1 text-[11px] text-slate-300 z-15 flex items-center space-x-2">
                 <span>バッファ:</span>
                 <div class="w-20 sm:w-32 bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700">
@@ -150,14 +136,12 @@
                 <span id="bufferTimeText" class="font-mono text-[10px] text-slate-400">0.0s</span>
             </div>
 
-            <!-- Camera loading overlay -->
             <div id="cameraLoading" class="absolute inset-0 bg-slate-950/90 flex flex-col items-center justify-center z-30 space-y-4">
                 <div class="w-12 h-12 border-4 border-sky-500/20 border-t-sky-500 rounded-full animate-spin"></div>
                 <p class="text-sm font-medium text-slate-300" id="loadingText">カメラを起動中...</p>
                 <p class="text-xs text-slate-500 max-w-xs text-center">ブラウザのカメラ使用許可ポップアップが表示された場合は「許可」を選択してください。</p>
             </div>
 
-            <!-- Pause / Freeze Overlay Indicator -->
             <div id="pauseIndicator" class="hidden absolute inset-0 bg-black/20 flex items-center justify-center pointer-events-none z-15">
                 <div class="bg-slate-900/90 border border-amber-500/50 text-amber-400 px-4 py-2 rounded-xl backdrop-blur shadow-2xl flex items-center space-x-2 font-bold animate-bounce">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -169,13 +153,10 @@
         </div>
     </main>
 
-    <!-- Bottom Quick Controls Bar -->
+    <!-- Bottom Controls -->
     <div class="bg-slate-900/95 border-t border-slate-800 p-3 sm:p-4 z-20 shrink-0">
         <div class="max-w-4xl mx-auto space-y-3">
-            
-            <!-- Delay Time Slider & Quick Preset Buttons -->
             <div class="flex flex-col sm:flex-row items-center gap-3">
-                <!-- Preset Buttons -->
                 <div class="flex items-center space-x-1.5 w-full sm:w-auto justify-center sm:justify-start overflow-x-auto py-0.5">
                     <span class="text-xs text-slate-400 font-medium whitespace-nowrap mr-1">プリセット:</span>
                     <button class="preset-btn px-2.5 py-1 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium transition active:scale-95" data-delay="1.0">1秒</button>
@@ -186,7 +167,6 @@
                     <button class="preset-btn px-2.5 py-1 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium transition active:scale-95" data-delay="15.0">15秒</button>
                 </div>
 
-                <!-- Fine Tuning Slider -->
                 <div class="flex items-center space-x-3 w-full flex-1">
                     <span class="text-xs text-slate-400 font-mono w-8 text-right font-semibold">0.5s</span>
                     <input type="range" id="delaySlider" min="0.5" max="20" step="0.5" value="3.0" class="w-full flex-1">
@@ -195,11 +175,8 @@
                 </div>
             </div>
 
-            <!-- Action Controls Row -->
             <div class="flex items-center justify-between pt-1 gap-2 flex-wrap">
-                <!-- Playback / Scrub controls -->
                 <div class="flex items-center space-x-2">
-                    <!-- Play / Pause -->
                     <button id="playPauseBtn" class="flex items-center space-x-1.5 px-3 py-1.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-semibold rounded-lg text-xs transition shadow-md shadow-sky-500/20 active:scale-95">
                         <svg id="playIcon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>
@@ -210,31 +187,20 @@
                         <span id="playPauseLabel">一時停止</span>
                     </button>
 
-                    <!-- Frame Step Back -->
-                    <button id="stepBackBtn" title="前フレームへ" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs border border-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition">
+                    <button id="stepBackBtn" title="前フレームへ" disabled class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs border border-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
                         </svg>
                     </button>
 
-                    <!-- Frame Step Forward -->
-                    <button id="stepForwardBtn" title="次フレームへ" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs border border-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition">
+                    <button id="stepForwardBtn" title="次フレームへ" disabled class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs border border-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
                         </svg>
                     </button>
-
-                    <!-- Playback Speed -->
-                    <select id="speedSelect" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-2 py-1.5 focus:outline-none focus:border-sky-500">
-                        <option value="1.0">1.0x (等倍)</option>
-                        <option value="0.5">0.5x (スロー)</option>
-                        <option value="0.25">0.25x (超スロー)</option>
-                    </select>
                 </div>
 
-                <!-- Display Mode & Overlay Toggles -->
                 <div class="flex items-center space-x-2">
-                    <!-- Layout Mode Switcher -->
                     <div class="flex bg-slate-800 p-0.5 rounded-lg border border-slate-700">
                         <button id="modeDelayedOnly" title="遅延のみ" class="px-2 py-1 text-xs rounded font-medium bg-sky-500 text-slate-950 transition">遅延のみ</button>
                         <button id="modeSplit" title="左右分割" class="px-2 py-1 text-xs rounded font-medium text-slate-300 hover:text-white transition">左右分割</button>
@@ -248,7 +214,6 @@
                         </button>
                     </div>
 
-                    <!-- Mirror Toggle -->
                     <button id="mirrorBtn" title="左右反転（ミラー）" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs flex items-center space-x-1 transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
@@ -256,7 +221,6 @@
                         <span class="hidden md:inline">反転</span>
                     </button>
 
-                    <!-- Grid Toggle -->
                     <button id="gridBtn" title="ガイド線切り替え" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs flex items-center space-x-1 transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16M6 4v16M12 4v16M18 4v16"></path>
@@ -264,7 +228,6 @@
                         <span id="gridBtnText" class="hidden md:inline">ガイド: なし</span>
                     </button>
 
-                    <!-- Drawing Tool Toggle -->
                     <button id="drawBtn" title="画面上に線を描く" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs flex items-center space-x-1 transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
@@ -272,7 +235,6 @@
                         <span class="hidden md:inline">お絵描き</span>
                     </button>
 
-                    <!-- Capture Snapshot -->
                     <button id="captureBtn" title="静止画を保存" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 hover:border-emerald-500/50 rounded-lg text-xs flex items-center space-x-1 transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h0.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
@@ -285,7 +247,7 @@
         </div>
     </div>
 
-    <!-- Drawing Toolbar (Floating Overlay when draw tool active) -->
+    <!-- Drawing Toolbar -->
     <div id="drawingToolbar" class="hidden absolute top-16 left-1/2 -translate-x-1/2 bg-slate-900/90 border border-slate-700 rounded-xl p-2 z-25 flex items-center space-x-2 shadow-2xl backdrop-blur">
         <span class="text-xs text-slate-400 px-1 font-semibold">お絵描き:</span>
         <button class="color-picker-btn w-6 h-6 rounded-full bg-red-500 border-2 border-white ring-2 ring-transparent transition scale-110" data-color="#ef4444"></button>
@@ -306,7 +268,7 @@
         </button>
     </div>
 
-    <!-- Settings Drawer / Modal -->
+    <!-- Settings Modal -->
     <div id="settingsModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-5 shadow-2xl">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -324,9 +286,7 @@
                 </button>
             </div>
 
-            <!-- Settings Form -->
             <div class="space-y-4">
-                <!-- Camera Select -->
                 <div class="space-y-1.5">
                     <label class="block text-xs font-semibold text-slate-300">使用カメラ</label>
                     <select id="cameraSelect" class="w-full bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
@@ -334,7 +294,6 @@
                     </select>
                 </div>
 
-                <!-- Video Quality / Buffer Resolution -->
                 <div class="space-y-1.5">
                     <label class="block text-xs font-semibold text-slate-300">キャプチャ解像度（画質）</label>
                     <select id="resolutionSelect" class="w-full bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
@@ -342,10 +301,8 @@
                         <option value="1920x1080">フルHD (1080p) - 高画質 (メモリ負荷大)</option>
                         <option value="640x480">SD (480p) - 軽量 (動作が重い場合に)</option>
                     </select>
-                    <p class="text-[11px] text-slate-400">※ 遅延時間を長くする場合（10秒以上）、動作が重くなったら解像度を下げてください。</p>
                 </div>
 
-                <!-- Maximum Buffer Length -->
                 <div class="space-y-1.5">
                     <label class="block text-xs font-semibold text-slate-300">最大遅延の上限値</label>
                     <select id="maxDelaySelect" class="w-full bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
@@ -354,102 +311,90 @@
                         <option value="30">30 秒 (メモリ消費量注意)</option>
                     </select>
                 </div>
+            </div>
 
-                <!-- Memory cleanup info -->
-            <div class="bg-slate-800/60 rounded-xl p-3 border border-slate-700/60 text-xs text-slate-400 space-y-1">
-                <div class="flex items-center justify-between text-slate-300 font-medium">
-                    <span>メモリ状態:</span>
-                    <span id="memoryStatusText" class="font-mono text-sky-400">正常</span>
-                </div>
-                <p class="text-[11px]">フレームバッファは自動的に最適化・解放されます。</p>
+            <div class="pt-2 flex justify-end">
+                <button id="applySettingsBtn" class="w-full py-2.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-semibold rounded-xl text-sm transition">
+                    完了
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Remote Camera Modal -->
+    <div id="remoteCamModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-6 space-y-4 shadow-2xl text-center">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3 text-left">
+                <h3 class="font-bold text-base text-slate-100 flex items-center space-x-2">
+                    <span class="text-xl">📱</span>
+                    <span>スマホカメラをワイヤレス接続</span>
+                </h3>
+                <button id="closeRemoteModalBtn" class="p-1 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-300">
+                スマートフォンで下のQRコードを読み取ると、スマホのカメラ映像がワイヤレスでこの画面に転送されます（アプリ不要）。
+            </p>
+
+            <div class="bg-white p-4 rounded-xl inline-block shadow-inner mx-auto my-2 border border-slate-200" id="qrcodeContainer">
+                <div id="qrcode"></div>
+            </div>
+
+            <div id="remoteStatusText" class="text-xs font-medium text-amber-400 bg-amber-500/10 border border-amber-500/20 py-2 px-3 rounded-lg flex items-center justify-center space-x-2">
+                <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                <span>スマホの接続を待機中...</span>
+            </div>
+
+            <button id="switchLocalCamBtn" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium rounded-xl text-xs transition border border-slate-700">
+                本体カメラ（内蔵カメラ）に戻す
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile Sender Container -->
+    <div id="mobileSenderContainer" class="hidden fixed inset-0 bg-slate-950 z-50 flex flex-col items-center justify-between p-6 text-center">
+        <div class="space-y-2 max-w-xs">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center mx-auto shadow-lg shadow-indigo-500/30">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                </svg>
+            </div>
+            <h2 class="text-lg font-bold text-slate-100">DelayCam カメラ送信モード</h2>
+            <p class="text-xs text-slate-400">メイン画面（PC/タブレット）へカメラ映像をリアルタイム送信しています。</p>
+        </div>
+
+        <div class="w-full max-w-sm aspect-video bg-black rounded-2xl overflow-hidden border border-slate-800 shadow-2xl relative">
+            <video id="mobilePreviewVideo" class="w-full h-full object-cover" autoplay playsinline muted></video>
+            <div id="mobileStatusBadge" class="absolute top-3 left-3 bg-emerald-500 text-slate-950 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center space-x-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-slate-950 animate-pulse"></span>
+                <span>送信中</span>
             </div>
         </div>
 
-        <!-- Modal footer -->
-        <div class="pt-2 flex justify-end">
-            <button id="applySettingsBtn" class="w-full py-2.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-semibold rounded-xl text-sm transition">
-                完了
-            </button>
-        </div>
-    </div>
-</div>
-
-<div id="remoteCamModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-6 space-y-4 shadow-2xl text-center">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-3 text-left">
-            <h3 class="font-bold text-base text-slate-100 flex items-center space-x-2">
-                <span class="text-xl">📱</span>
-                <span>スマホカメラをワイヤレス接続</span>
-            </h3>
-            <button id="closeRemoteModalBtn" class="p-1 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        <div class="w-full max-w-xs space-y-3">
+            <button id="toggleMobileFacingBtn" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-100 font-semibold rounded-xl text-xs border border-slate-700 flex items-center justify-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                 </svg>
+                <span>イン / アウトカメラ切替</span>
             </button>
-        </div>
-
-        <p class="text-xs text-slate-300">
-            スマートフォンで下のQRコードを読み取ると、スマホのカメラ映像がワイヤレスでこの画面に転送されます（アプリ不要）。
-        </p>
-
-        <!-- QR Code Container -->
-        <div class="bg-white p-4 rounded-xl inline-block shadow-inner mx-auto my-2 border border-slate-200" id="qrcodeContainer">
-            <div id="qrcode"></div>
-        </div>
-
-        <!-- Status Indicator -->
-        <div id="remoteStatusText" class="text-xs font-medium text-amber-400 bg-amber-500/10 border border-amber-500/20 py-2 px-3 rounded-lg flex items-center justify-center space-x-2">
-            <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-            <span>スマホの接続を待機中...</span>
-        </div>
-
-        <button id="switchLocalCamBtn" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium rounded-xl text-xs transition border border-slate-700">
-            本体カメラ（内蔵カメラ）に戻す
-        </button>
-    </div>
-</div>
-
-<div id="mobileSenderContainer" class="hidden fixed inset-0 bg-slate-950 z-50 flex flex-col items-center justify-between p-6 text-center">
-    <div class="space-y-2 max-w-xs">
-        <div class="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center mx-auto shadow-lg shadow-indigo-500/30">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-            </svg>
-        </div>
-        <h2 class="text-lg font-bold text-slate-100">DelayCam カメラ送信モード</h2>
-        <p class="text-xs text-slate-400">メイン画面（PC/タブレット）へカメラ映像をリアルタイム送信しています。</p>
-    </div>
-
-    <!-- Mobile Live Camera Preview -->
-    <div class="w-full max-w-sm aspect-video bg-black rounded-2xl overflow-hidden border border-slate-800 shadow-2xl relative">
-        <video id="mobilePreviewVideo" class="w-full h-full object-cover" autoplay playsinline muted></video>
-        <div id="mobileStatusBadge" class="absolute top-3 left-3 bg-emerald-500 text-slate-950 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center space-x-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-slate-950 animate-pulse"></span>
-            <span>送信中</span>
+            <p class="text-[10px] text-slate-500">この画面を開いたまま撮影を行ってください。</p>
         </div>
     </div>
-
-    <div class="w-full max-w-xs space-y-3">
-        <button id="toggleMobileFacingBtn" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-100 font-semibold rounded-xl text-xs border border-slate-700 flex items-center justify-center space-x-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-            </svg>
-            <span>イン / アウトカメラ切替</span>
-        </button>
-        <p class="text-[10px] text-slate-500">この画面を開いたまま撮影を行ってください。</p>
-    </div>
-</div>
 
 <script>
-    // App State
+    // State
     const state = {
         delaySeconds: 3.0,
         maxDelaySeconds: 20.0,
         isPaused: false,
-        playbackSpeed: 1.0,
         isMirrored: false,
-        gridMode: 'none', // 'none' | 'grid3x3' | 'cross'
-        layoutMode: 'delayed', // 'delayed' | 'split' | 'pip' | 'vr'
+        gridMode: 'none',
+        layoutMode: 'delayed',
         drawMode: false,
         drawColor: '#ef4444',
         selectedCameraId: '',
@@ -461,7 +406,6 @@
         mobileFacingMode: 'environment'
     };
 
-    // Frame Ring Buffer
     let frameBuffer = [];
 
     // Elements
@@ -473,7 +417,7 @@
     const livePipCanvas = document.getElementById('livePipCanvas');
     const livePipCtx = livePipCanvas.getContext('2d');
 
-    // UI Controls
+    // Controls
     const delaySlider = document.getElementById('delaySlider');
     const delayValueBadge = document.getElementById('delayValueBadge');
     const headerDelayDisplay = document.getElementById('headerDelayDisplay');
@@ -489,7 +433,6 @@
     const pauseIndicator = document.getElementById('pauseIndicator');
     const stepBackBtn = document.getElementById('stepBackBtn');
     const stepForwardBtn = document.getElementById('stepForwardBtn');
-    const speedSelect = document.getElementById('speedSelect');
     const mirrorBtn = document.getElementById('mirrorBtn');
     const gridBtn = document.getElementById('gridBtn');
     const gridBtnText = document.getElementById('gridBtnText');
@@ -500,12 +443,11 @@
     const captureBtn = document.getElementById('captureBtn');
     const pipContainer = document.getElementById('pipContainer');
 
-    // Layout Mode Buttons
     const modeDelayedOnly = document.getElementById('modeDelayedOnly');
     const modeSplit = document.getElementById('modeSplit');
     const modePip = document.getElementById('modePip');
     const modeVr = document.getElementById('modeVr');
-    // Remote Camera Elements
+
     const remoteCamBtn = document.getElementById('remoteCamBtn');
     const remoteCamModal = document.getElementById('remoteCamModal');
     const closeRemoteModalBtn = document.getElementById('closeRemoteModalBtn');
@@ -516,7 +458,6 @@
     const mobilePreviewVideo = document.getElementById('mobilePreviewVideo');
     const toggleMobileFacingBtn = document.getElementById('toggleMobileFacingBtn');
 
-    // Settings Modal
     const settingsModal = document.getElementById('settingsModal');
     const toggleSettingsBtn = document.getElementById('toggleSettingsBtn');
     const closeSettingsBtn = document.getElementById('closeSettingsBtn');
@@ -524,7 +465,6 @@
     const cameraSelect = document.getElementById('cameraSelect');
     const resolutionSelect = document.getElementById('resolutionSelect');
     const maxDelaySelect = document.getElementById('maxDelaySelect');
-    const memoryStatusText = document.getElementById('memoryStatusText');
 
     let mediaStream = null;
     let animationFrameId = null;
@@ -537,7 +477,6 @@
         const targetPeerId = urlParams.get('peer');
 
         if (targetPeerId) {
-            // SENDER MODE (Running on Smartphone)
             mobileSenderContainer.classList.remove('hidden');
             startMobileSender(targetPeerId);
             return true;
@@ -607,7 +546,7 @@
             });
 
             state.peer.on('call', (call) => {
-                call.answer(); // Answer incoming stream
+                call.answer();
                 call.on('stream', (remoteStream) => {
                     state.isRemoteCamera = true;
                     webcamVideo.srcObject = remoteStream;
@@ -625,12 +564,10 @@
             state.peer.on('error', (err) => {
                 console.warn('PeerJS Connection Error:', err);
                 remoteStatusText.className = 'text-xs font-medium text-red-400 bg-red-500/10 border border-red-500/20 py-2 px-3 rounded-lg text-center';
-                remoteStatusText.innerHTML = '⚠️ この埋め込み環境・ブラウザ設定ではWebSocket(P2P)通信が制限されています。内蔵カメラをご利用ください。';
+                remoteStatusText.innerHTML = '⚠️ この環境では通信が制限されています。内蔵カメラをご利用ください。';
             });
         } catch (err) {
-            console.warn('PeerJS initialization caught error:', err);
-            remoteStatusText.className = 'text-xs font-medium text-red-400 bg-red-500/10 border border-red-500/20 py-2 px-3 rounded-lg text-center';
-            remoteStatusText.innerHTML = '⚠️ ワイヤレス接続機能の初期化に失敗しました。';
+            console.warn('PeerJS initialization error:', err);
         }
     }
 
@@ -649,7 +586,6 @@
         await initCamera();
     });
 
-    // Camera Initialization
     async function initCamera() {
         if (state.isRemoteCamera) return;
 
@@ -700,7 +636,7 @@
             await populateCameraList();
         } catch (err) {
             console.error('Camera Access Error:', err);
-            loadingText.textContent = 'カメラへのアクセスに失敗しました。アクセスを許可してください。';
+            loadingText.textContent = 'カメラへのアクセスに失敗しました。';
         }
     }
 
@@ -722,17 +658,14 @@
     }
 
     function processFrame(now) {
-        // Capture live video frame into buffer if video is playing
         if (webcamVideo.readyState >= 2 && !webcamVideo.paused && !webcamVideo.ended) {
-            // Create ImageBitmap from video
             createImageBitmap(webcamVideo).then(bitmap => {
                 frameBuffer.push({
                     bitmap: bitmap,
                     timestamp: performance.now()
                 });
-            }).catch(e => console.error("Bitmap creation failed:", e));
+            }).catch(e => console.error(e));
 
-            // Clean up old frames in buffer beyond max delay
             const maxRetentionMs = state.maxDelaySeconds * 1000 + 1000;
             while (frameBuffer.length > 0 && (now - frameBuffer[0].timestamp) > maxRetentionMs) {
                 const oldFrame = frameBuffer.shift();
@@ -741,7 +674,6 @@
                 }
             }
 
-            // Update Buffer Progress Bar UI
             if (frameBuffer.length > 0) {
                 const currentBufferDurationSec = (now - frameBuffer[0].timestamp) / 1000;
                 const bufferPercent = Math.min(100, (currentBufferDurationSec / state.delaySeconds) * 100);
@@ -750,12 +682,10 @@
             }
         }
 
-        // Render Delayed Frame
         if (!state.isPaused) {
             renderDelayedFrame();
         }
 
-        // Render Live PIP if active
         if (state.layoutMode === 'pip' && webcamVideo.readyState >= 2) {
             livePipCtx.save();
             if (state.isMirrored) {
@@ -775,13 +705,10 @@
         const now = performance.now();
         const targetTime = now - (state.delaySeconds * 1000);
 
-        // Find closest frame to targetTime
         let selectedFrame = null;
         if (state.currentFrameIndex >= 0 && state.currentFrameIndex < frameBuffer.length) {
-            // Manual frame index selection (when paused)
             selectedFrame = frameBuffer[state.currentFrameIndex];
         } else {
-            // Find closest timestamp
             let minDiff = Infinity;
             for (let i = frameBuffer.length - 1; i >= 0; i--) {
                 const diff = Math.abs(frameBuffer[i].timestamp - targetTime);
@@ -802,10 +729,8 @@
         delayedCtx.clearRect(0, 0, width, height);
 
         if (state.layoutMode === 'split') {
-            // SPLIT MODE: Live on Left, Delayed on Right
             const halfW = width / 2;
 
-            // Draw Live Video on Left
             delayedCtx.save();
             if (state.isMirrored) {
                 delayedCtx.translate(halfW, 0);
@@ -816,16 +741,13 @@
             }
             delayedCtx.restore();
 
-            // Split divider line
             delayedCtx.fillStyle = '#38bdf8';
             delayedCtx.fillRect(halfW - 2, 0, 4, height);
 
-            // Labels
             delayedCtx.font = 'bold 16px Inter, sans-serif';
             delayedCtx.fillStyle = '#ef4444';
             delayedCtx.fillText('LIVE (リアルタイム)', 16, 30);
 
-            // Draw Delayed Video on Right
             delayedCtx.save();
             if (state.isMirrored) {
                 delayedCtx.translate(width + halfW, 0);
@@ -840,43 +762,59 @@
             delayedCtx.fillText(`${state.delaySeconds.toFixed(1)}秒遅延`, halfW + 16, 30);
 
         } else if (state.layoutMode === 'vr') {
-            // VR SIDE-BY-SIDE MODE: Same delayed frame duplicated for Left & Right eyes
             const halfW = width / 2;
 
-            // Left Eye
+            // Calculate equal-ratio cropping parameters to prevent vertical/horizontal stretching in VR mode
+            const srcAspect = width / height;
+            const destAspect = halfW / height;
+            
+            let cropW = width;
+            let cropH = height;
+            let cropX = 0;
+            let cropY = 0;
+
+            if (srcAspect > destAspect) {
+                // Source is wider: crop horizontally from center
+                cropW = height * destAspect;
+                cropX = (width - cropW) / 2;
+            } else {
+                // Source is taller: crop vertically from center
+                cropH = width / destAspect;
+                cropY = (height - cropH) / 2;
+            }
+
+            // Left Eye View
             delayedCtx.save();
             if (state.isMirrored) {
                 delayedCtx.translate(halfW, 0);
                 delayedCtx.scale(-1, 1);
-                delayedCtx.drawImage(selectedFrame.bitmap, 0, 0, width, height, 0, 0, halfW, height);
+                delayedCtx.drawImage(selectedFrame.bitmap, cropX, cropY, cropW, cropH, 0, 0, halfW, height);
             } else {
-                delayedCtx.drawImage(selectedFrame.bitmap, 0, 0, width, height, 0, 0, halfW, height);
+                delayedCtx.drawImage(selectedFrame.bitmap, cropX, cropY, cropW, cropH, 0, 0, halfW, height);
             }
             delayedCtx.restore();
 
-            // Center Divider for VR Googles
+            // Center Divider Line
             delayedCtx.fillStyle = '#0f172a';
             delayedCtx.fillRect(halfW - 4, 0, 8, height);
 
-            // Right Eye
+            // Right Eye View
             delayedCtx.save();
             if (state.isMirrored) {
                 delayedCtx.translate(width + halfW, 0);
                 delayedCtx.scale(-1, 1);
-                delayedCtx.drawImage(selectedFrame.bitmap, 0, 0, width, height, 0, 0, halfW, height);
+                delayedCtx.drawImage(selectedFrame.bitmap, cropX, cropY, cropW, cropH, 0, 0, halfW, height);
             } else {
-                delayedCtx.drawImage(selectedFrame.bitmap, 0, 0, width, height, halfW, 0, halfW, height);
+                delayedCtx.drawImage(selectedFrame.bitmap, cropX, cropY, cropW, cropH, halfW, 0, halfW, height);
             }
             delayedCtx.restore();
 
-            // Render overlay grids on each eye individually in VR mode
             if (state.gridMode !== 'none') {
                 drawGridOverlayEye(0, 0, halfW, height);
                 drawGridOverlayEye(halfW, 0, halfW, height);
             }
 
         } else {
-            // FULL DELAYED MODE
             if (state.isMirrored) {
                 delayedCtx.translate(width, 0);
                 delayedCtx.scale(-1, 1);
@@ -886,9 +824,8 @@
 
         delayedCtx.restore();
 
-        // Draw Grid Overlays (For Non-VR modes)
         if (state.layoutMode !== 'vr') {
-            drawGridOverlay(width, height);
+            drawGridOverlayEye(0, 0, width, height);
         }
     }
 
@@ -1139,6 +1076,8 @@
     modeSplit.addEventListener('click', () => updateLayoutUI('split'));
     modePip.addEventListener('click', () => updateLayoutUI('pip'));
     modeVr.addEventListener('click', () => updateLayoutUI('vr'));
+
+    captureBtn.addEventListener('click', () => {
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = delayedCanvas.width;
         tempCanvas.height = delayedCanvas.height;
@@ -1184,10 +1123,9 @@
         }
     });
 
-    // Suppress WebSocket security rejection popups in sandboxed frame environments
     window.addEventListener('unhandledrejection', (event) => {
         if (event.reason && (event.reason.name === 'SecurityError' || String(event.reason).includes('Peer') || String(event.reason).includes('WebSocket'))) {
-            console.warn('Handled WebSocket SecurityError in sandbox environment:', event.reason);
+            console.warn('Handled WebSocket SecurityError:', event.reason);
             event.preventDefault();
         }
     });
